@@ -14,6 +14,11 @@ const SpinnerWheel = ({
   const audioContextRef = useRef(null);
   const [rotation, setRotation] = useState(0);
   const lastTickIndex = useRef(-1);
+  const animationRef = useRef(null);
+  const startRotationRef = useRef(0);
+  const targetRotationRef = useRef(0);
+  const startTimeRef = useRef(0);
+  const currentDurationRef = useRef(spinDuration);
 
   const colors = [
     '#8a2be2', '#4b0082', '#00d2ff', '#9d50bb', '#6e48aa', '#3a1c71'
@@ -46,6 +51,31 @@ const SpinnerWheel = ({
     }
   };
 
+  const playWinSound = () => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioContextRef.current;
+      const now = ctx.currentTime;
+
+      // Arcane/Victory chord
+      [440, 554.37, 659.25, 880].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + i * 0.1);
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.1, now + i * 0.1 + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.1);
+        osc.stop(now + 1.5);
+      });
+    } catch (e) { console.warn(e) }
+  };
+
   useEffect(() => {
     drawWheel();
   }, [items, rotation, isSpinning, hideContentDuringSpin, wheelTheme]);
@@ -73,23 +103,21 @@ const SpinnerWheel = ({
       ctx.lineTo(centerX, centerY);
       ctx.fill();
 
-      // Separator - more visible if same color
+      // Separator
       ctx.strokeStyle = (wheelTheme === 'random') ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.3)';
       ctx.lineWidth = (wheelTheme === 'random') ? 1 : 2;
       ctx.stroke();
 
-      // Show text only if not spinning or if hideContentDuringSpin is false
+      // Show text
       if (!isSpinning || !hideContentDuringSpin) {
         ctx.save();
         ctx.translate(centerX, centerY);
         ctx.rotate(angle + arcSize / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#fff";
-
         const baseFontSize = 14;
         const adaptiveFontSize = Math.max(8, Math.min(baseFontSize, (radius / (item.length * 0.8))));
         ctx.font = `600 ${adaptiveFontSize}px Outfit`;
-
         ctx.fillText(item, radius - 25, adaptiveFontSize / 3);
         ctx.restore();
       }
@@ -106,29 +134,38 @@ const SpinnerWheel = ({
   };
 
   const handleSpin = () => {
-    if (isSpinning || items.length === 0) return;
+    if (isSpinning) {
+      // Emergency stop: Finish animation immediately
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        setIsSpinning(false);
+        finalizeWinner(rotation);
+      }
+      return;
+    }
+
+    if (items.length === 0) return;
 
     setIsSpinning(true);
     onSpinStart?.();
 
-    // Scale rotations with time: roughly 3.5 full turns per second
+    currentDurationRef.current = spinDuration;
     const rotationsPerSecond = 3.5;
     const baseSpins = (spinDuration / 1000) * rotationsPerSecond;
     const extraSpins = baseSpins + Math.random() * 2;
-    const targetRotation = rotation + (extraSpins * 2 * Math.PI) + (Math.random() * 2 * Math.PI);
 
-    const startTime = performance.now();
-    const startRotation = rotation;
+    startRotationRef.current = rotation;
+    targetRotationRef.current = rotation + (extraSpins * 2 * Math.PI) + (Math.random() * 2 * Math.PI);
+    startTimeRef.current = performance.now();
     lastTickIndex.current = -1;
 
     const animate = (currentTime) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / spinDuration, 1);
+      const elapsed = currentTime - startTimeRef.current;
+      const progress = Math.min(elapsed / currentDurationRef.current, 1);
 
       const easeOut = 1 - Math.pow(1 - progress, 4);
-      const currentRot = startRotation + (targetRotation - startRotation) * easeOut;
+      const currentRot = startRotationRef.current + (targetRotationRef.current - startRotationRef.current) * easeOut;
 
-      // Sound logic
       if (items.length > 0) {
         const arcSize = (2 * Math.PI) / items.length;
         const currentTickIndex = Math.floor((currentRot % (2 * Math.PI)) / arcSize);
@@ -140,15 +177,15 @@ const SpinnerWheel = ({
 
       setRotation(currentRot);
 
-      if (elapsed < spinDuration) {
-        requestAnimationFrame(animate);
+      if (elapsed < currentDurationRef.current) {
+        animationRef.current = requestAnimationFrame(animate);
       } else {
         setIsSpinning(false);
         finalizeWinner(currentRot);
       }
     };
 
-    requestAnimationFrame(animate);
+    animationRef.current = requestAnimationFrame(animate);
   };
 
   const finalizeWinner = (finalRot) => {
@@ -158,6 +195,7 @@ const SpinnerWheel = ({
 
     const winner = items[winningIndex];
     onSpinEnd?.(winner);
+    playWinSound(); // New win sound
 
     confetti({
       particleCount: 150,
@@ -190,10 +228,9 @@ const SpinnerWheel = ({
         />
         <button
           onClick={handleSpin}
-          disabled={isSpinning}
           className="spin-btn"
         >
-          {isSpinning ? '...' : 'SPIN'}
+          {isSpinning ? 'STOP' : 'SPIN'}
         </button>
       </div>
     </div>
