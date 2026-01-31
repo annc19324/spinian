@@ -102,7 +102,10 @@ const SpinnerWheel = ({ items = [], onSpinStart, onSpinEnd, spinDuration = 5000 
     setIsSpinning(true);
     onSpinStart?.();
 
-    const extraSpins = 7 + Math.random() * 5;
+    // Scale rotations with time: roughly 3.5 full turns per second
+    const rotationsPerSecond = 3.5;
+    const baseSpins = (spinDuration / 1000) * rotationsPerSecond;
+    const extraSpins = baseSpins + Math.random() * 2; 
     const targetRotation = rotation + (extraSpins * 2 * Math.PI) + (Math.random() * 2 * Math.PI);
 
     const startTime = performance.now();
@@ -113,7 +116,7 @@ const SpinnerWheel = ({ items = [], onSpinStart, onSpinEnd, spinDuration = 5000 
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / spinDuration, 1);
 
-      const easeOut = 1 - Math.pow(1 - progress, 5);
+      const easeOut = 1 - Math.pow(1 - progress, 4);
       const currentRot = startRotation + (targetRotation - startRotation) * easeOut;
 
       // Sound logic: tick when passing a slice
