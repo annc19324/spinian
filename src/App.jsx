@@ -20,7 +20,11 @@ const DEFAULT_MODES = {
 const App = () => {
   const [activeMode, setActiveMode] = useState('NAMES');
   const [showEditor, setShowEditor] = useState(false);
-  const [spinDuration, setSpinDuration] = useState(5000); // 5 seconds default
+  const [spinDuration, setSpinDuration] = useState(5000);
+  const [spinMode, setSpinMode] = useState('fixed'); // 'fixed' or 'random'
+  const [randomRange, setRandomRange] = useState({ min: 5, max: 30 });
+  const [effectiveDuration, setEffectiveDuration] = useState(5000);
+
   const [customItems, setCustomItems] = useState(() => {
     const saved = localStorage.getItem('spinian_custom_items');
     if (saved) {
@@ -54,6 +58,18 @@ const App = () => {
     }));
   };
 
+  const handleSpinStart = () => {
+    let duration = spinDuration;
+    if (spinMode === 'random') {
+      const minMs = randomRange.min * 1000;
+      const maxMs = randomRange.max * 1000;
+      duration = Math.floor(Math.random() * (maxMs - minMs + 1) + minMs);
+    }
+    setEffectiveDuration(duration);
+    setIsSpinning(true);
+    setWinner(null);
+  };
+
   useEffect(() => {
     setWinner(null);
   }, [activeMode]);
@@ -76,11 +92,8 @@ const App = () => {
 
       <SpinnerWheel
         items={getCurrentItems()}
-        spinDuration={spinDuration}
-        onSpinStart={() => {
-          setIsSpinning(true);
-          setWinner(null);
-        }}
+        spinDuration={effectiveDuration}
+        onSpinStart={handleSpinStart}
         onSpinEnd={(res) => {
           setIsSpinning(false);
           setWinner(res);
@@ -110,20 +123,71 @@ const App = () => {
       {/* Content Editor */}
       {showEditor && (
         <div className="editor-container">
-          <div style={{ marginBottom: '1.5rem' }}>
-            <span className="editor-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
-              <Clock size={14} /> Thời gian quay: {spinDuration / 1000} giây
+          <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem' }}>
+            <span className="editor-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+              <Clock size={14} /> Chế độ thời gian quay
             </span>
-            <input
-              type="range"
-              min="1000"
-              max="20000"
-              step="500"
-              value={spinDuration}
-              onChange={(e) => setSpinDuration(Number(e.target.value))}
-              style={{ width: '100%', accentColor: 'var(--primary)' }}
-              disabled={isSpinning}
-            />
+
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
+              <button
+                className={`mode-btn ${spinMode === 'fixed' ? 'active' : ''}`}
+                style={{ flex: 1, fontSize: '0.75rem', padding: '8px' }}
+                onClick={() => setSpinMode('fixed')}
+              >
+                Cố định
+              </button>
+              <button
+                className={`mode-btn ${spinMode === 'random' ? 'active' : ''}`}
+                style={{ flex: 1, fontSize: '0.75rem', padding: '8px' }}
+                onClick={() => setSpinMode('random')}
+              >
+                Ngẫu nhiên
+              </button>
+            </div>
+
+            {spinMode === 'fixed' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.8rem' }}>Thời gian: {spinDuration / 1000}s</span>
+                  <input
+                    type="number"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', width: '60px', borderRadius: '4px', textAlign: 'center', padding: '4px' }}
+                    value={spinDuration / 1000}
+                    onChange={(e) => setSpinDuration(Number(e.target.value) * 1000)}
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="1000"
+                  max="60000"
+                  step="500"
+                  value={spinDuration}
+                  onChange={(e) => setSpinDuration(Number(e.target.value))}
+                  style={{ width: '100%', accentColor: 'var(--primary)' }}
+                  disabled={isSpinning}
+                />
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <span style={{ fontSize: '0.8rem' }}>Khoảng ngẫu nhiên: {randomRange.min}s - {randomRange.max}s</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="number"
+                    placeholder="Min (s)"
+                    style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '8px', textAlign: 'center', padding: '8px' }}
+                    value={randomRange.min}
+                    onChange={(e) => setRandomRange({ ...randomRange, min: Number(e.target.value) })}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max (s)"
+                    style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '8px', textAlign: 'center', padding: '8px' }}
+                    value={randomRange.max}
+                    onChange={(e) => setRandomRange({ ...randomRange, max: Number(e.target.value) })}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <span className="editor-title">Tùy chỉnh nội dung ({DEFAULT_MODES[activeMode].label})</span>
@@ -134,7 +198,7 @@ const App = () => {
             placeholder="Nhập mỗi lựa chọn trên một dòng..."
             disabled={isSpinning}
           />
-          <span className="hint">Mọi thay đổi sẽ tự động lưu lại. Chữ sẽ tự co giãn để hiện đầy đủ.</span>
+          <span className="hint">Mọi thay đổi sẽ tự động lưu lại.</span>
         </div>
       )}
     </div>
