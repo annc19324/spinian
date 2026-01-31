@@ -30,12 +30,13 @@ body {
 
 .app-container {
   width: 100%;
-  max-width: 500px;
+  max-width: 460px;
+  /* Slightly narrower */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2rem;
-  padding: 80px 20px 40px;
+  padding: 60px 20px 60px;
 }
 
 .brand {
@@ -159,6 +160,8 @@ body {
 /* Editor Styles */
 .editor-container {
   width: 100%;
+  max-width: 420px;
+  /* Prevent it from being too wide */
   background: var(--glass);
   border: 1px solid var(--glass-border);
   padding: 1.5rem;
