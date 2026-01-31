@@ -1,7 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
-const SpinnerWheel = ({ items = [], onSpinStart, onSpinEnd, spinDuration = 5000 }) => {
+const SpinnerWheel = ({
+  items = [],
+  onSpinStart,
+  onSpinEnd,
+  spinDuration = 5000,
+  hideContentDuringSpin = false,
+  wheelTheme = 'random' // 'random' or a hex color
+}) => {
   const [isSpinning, setIsSpinning] = useState(false);
   const canvasRef = useRef(null);
   const audioContextRef = useRef(null);
@@ -41,7 +48,7 @@ const SpinnerWheel = ({ items = [], onSpinStart, onSpinEnd, spinDuration = 5000 
 
   useEffect(() => {
     drawWheel();
-  }, [items, rotation]);
+  }, [items, rotation, isSpinning, hideContentDuringSpin, wheelTheme]);
 
   const drawWheel = () => {
     const canvas = canvasRef.current;
@@ -60,33 +67,35 @@ const SpinnerWheel = ({ items = [], onSpinStart, onSpinEnd, spinDuration = 5000 
 
       // Draw slice
       ctx.beginPath();
-      ctx.fillStyle = colors[i % colors.length];
+      ctx.fillStyle = wheelTheme === 'random' ? colors[i % colors.length] : wheelTheme;
       ctx.moveTo(centerX, centerY);
       ctx.arc(centerX, centerY, radius, angle, angle + arcSize);
       ctx.lineTo(centerX, centerY);
       ctx.fill();
 
-      // Subtle separator
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-      ctx.lineWidth = 1;
+      // Separator - more visible if same color
+      ctx.strokeStyle = (wheelTheme === 'random') ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = (wheelTheme === 'random') ? 1 : 2;
       ctx.stroke();
 
-      // Draw text
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.rotate(angle + arcSize / 2);
-      ctx.textAlign = "right";
-      ctx.fillStyle = "#fff";
+      // Show text only if not spinning or if hideContentDuringSpin is false
+      if (!isSpinning || !hideContentDuringSpin) {
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angle + arcSize / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#fff";
 
-      const baseFontSize = 14;
-      const adaptiveFontSize = Math.max(8, Math.min(baseFontSize, (radius / (item.length * 0.8))));
-      ctx.font = `600 ${adaptiveFontSize}px Outfit`;
+        const baseFontSize = 14;
+        const adaptiveFontSize = Math.max(8, Math.min(baseFontSize, (radius / (item.length * 0.8))));
+        ctx.font = `600 ${adaptiveFontSize}px Outfit`;
 
-      ctx.fillText(item, radius - 25, adaptiveFontSize / 3);
-      ctx.restore();
+        ctx.fillText(item, radius - 25, adaptiveFontSize / 3);
+        ctx.restore();
+      }
     });
 
-    // Center circular cap (Visual guide for button)
+    // Center circular cap
     ctx.beginPath();
     ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
     ctx.fillStyle = '#111';
@@ -105,7 +114,7 @@ const SpinnerWheel = ({ items = [], onSpinStart, onSpinEnd, spinDuration = 5000 
     // Scale rotations with time: roughly 3.5 full turns per second
     const rotationsPerSecond = 3.5;
     const baseSpins = (spinDuration / 1000) * rotationsPerSecond;
-    const extraSpins = baseSpins + Math.random() * 2; 
+    const extraSpins = baseSpins + Math.random() * 2;
     const targetRotation = rotation + (extraSpins * 2 * Math.PI) + (Math.random() * 2 * Math.PI);
 
     const startTime = performance.now();
@@ -119,7 +128,7 @@ const SpinnerWheel = ({ items = [], onSpinStart, onSpinEnd, spinDuration = 5000 
       const easeOut = 1 - Math.pow(1 - progress, 4);
       const currentRot = startRotation + (targetRotation - startRotation) * easeOut;
 
-      // Sound logic: tick when passing a slice
+      // Sound logic
       if (items.length > 0) {
         const arcSize = (2 * Math.PI) / items.length;
         const currentTickIndex = Math.floor((currentRot % (2 * Math.PI)) / arcSize);
@@ -160,7 +169,6 @@ const SpinnerWheel = ({ items = [], onSpinStart, onSpinEnd, spinDuration = 5000 
 
   return (
     <div className="wheel-wrapper">
-      {/* Pointer */}
       <div
         className="absolute top-[-10px] left-1/2 -translate-x-1/2 z-10 pointer-events-none"
         style={{
@@ -171,7 +179,6 @@ const SpinnerWheel = ({ items = [], onSpinStart, onSpinEnd, spinDuration = 5000 
           filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.5))'
         }}
       />
-
       <div className="wheel-container">
         <canvas
           ref={canvasRef}
@@ -181,7 +188,6 @@ const SpinnerWheel = ({ items = [], onSpinStart, onSpinEnd, spinDuration = 5000 
           className="cursor-pointer display-block"
           style={{ filter: 'drop-shadow(0 0 50px rgba(138, 43, 226, 0.2))' }}
         />
-
         <button
           onClick={handleSpin}
           disabled={isSpinning}

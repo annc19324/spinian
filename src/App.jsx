@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SpinnerWheel from './components/SpinnerWheel';
-import { Settings, ChevronDown, ChevronUp, Clock } from 'lucide-react';
+import { Settings, ChevronDown, ChevronUp, Clock, EyeOff, Palette } from 'lucide-react';
 
 const DEFAULT_MODES = {
   NAMES: {
@@ -17,13 +17,26 @@ const DEFAULT_MODES = {
   }
 };
 
+const THEME_COLORS = [
+  { name: 'Random', value: 'random' },
+  { name: 'Purple', value: '#8a2be2' },
+  { name: 'Red', value: '#e63946' },
+  { name: 'Blue', value: '#00d2ff' },
+  { name: 'Green', value: '#2a9d8f' },
+  { name: 'Orange', value: '#f4a261' }
+];
+
 const App = () => {
   const [activeMode, setActiveMode] = useState('NAMES');
   const [showEditor, setShowEditor] = useState(false);
-  const [spinDuration, setSpinDuration] = useState(5000);
-  const [spinMode, setSpinMode] = useState('fixed'); // 'fixed' or 'random'
+  const [spinDuration, setSpinDuration] = useState(5000); 
+  const [spinMode, setSpinMode] = useState('fixed'); 
   const [randomRange, setRandomRange] = useState({ min: 5, max: 30 });
   const [effectiveDuration, setEffectiveDuration] = useState(5000);
+  
+  // New states for hide content and color theme
+  const [hideDuringSpin, setHideDuringSpin] = useState(false);
+  const [wheelTheme, setWheelTheme] = useState('random');
 
   const [customItems, setCustomItems] = useState(() => {
     const saved = localStorage.getItem('spinian_custom_items');
@@ -93,6 +106,8 @@ const App = () => {
       <SpinnerWheel
         items={getCurrentItems()}
         spinDuration={effectiveDuration}
+        hideContentDuringSpin={hideDuringSpin}
+        wheelTheme={wheelTheme}
         onSpinStart={handleSpinStart}
         onSpinEnd={(res) => {
           setIsSpinning(false);
@@ -111,7 +126,7 @@ const App = () => {
         </div>
       )}
 
-      <button
+      <button 
         className={`settings-toggle ${showEditor ? 'active' : ''}`}
         onClick={() => setShowEditor(!showEditor)}
       >
@@ -123,20 +138,21 @@ const App = () => {
       {/* Content Editor */}
       {showEditor && (
         <div className="editor-container">
+          {/* Advanced Settings Section */}
           <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem' }}>
             <span className="editor-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
               <Clock size={14} /> Chế độ thời gian quay
             </span>
-
+            
             <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
-              <button
+              <button 
                 className={`mode-btn ${spinMode === 'fixed' ? 'active' : ''}`}
                 style={{ flex: 1, fontSize: '0.75rem', padding: '8px' }}
                 onClick={() => setSpinMode('fixed')}
               >
                 Cố định
               </button>
-              <button
+              <button 
                 className={`mode-btn ${spinMode === 'random' ? 'active' : ''}`}
                 style={{ flex: 1, fontSize: '0.75rem', padding: '8px' }}
                 onClick={() => setSpinMode('random')}
@@ -149,17 +165,17 @@ const App = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '0.8rem' }}>Thời gian: {spinDuration / 1000}s</span>
-                  <input
+                  <input 
                     type="number"
                     style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', width: '60px', borderRadius: '4px', textAlign: 'center', padding: '4px' }}
                     value={spinDuration / 1000}
                     onChange={(e) => setSpinDuration(Number(e.target.value) * 1000)}
                   />
                 </div>
-                <input
-                  type="range"
-                  min="1000"
-                  max="60000"
+                <input 
+                  type="range" 
+                  min="1000" 
+                  max="60000" 
                   step="500"
                   value={spinDuration}
                   onChange={(e) => setSpinDuration(Number(e.target.value))}
@@ -171,23 +187,57 @@ const App = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <span style={{ fontSize: '0.8rem' }}>Khoảng ngẫu nhiên: {randomRange.min}s - {randomRange.max}s</span>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
+                  <input 
                     type="number"
                     placeholder="Min (s)"
                     style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '8px', textAlign: 'center', padding: '8px' }}
                     value={randomRange.min}
-                    onChange={(e) => setRandomRange({ ...randomRange, min: Number(e.target.value) })}
+                    onChange={(e) => setRandomRange({...randomRange, min: Number(e.target.value)})}
                   />
-                  <input
+                  <input 
                     type="number"
                     placeholder="Max (s)"
                     style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '8px', textAlign: 'center', padding: '8px' }}
                     value={randomRange.max}
-                    onChange={(e) => setRandomRange({ ...randomRange, max: Number(e.target.value) })}
+                    onChange={(e) => setRandomRange({...randomRange, max: Number(e.target.value)})}
                   />
                 </div>
               </div>
             )}
+          </div>
+
+          {/* New Visibility & Theme Settings Section */}
+          <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem' }}>
+            <div className="toggle-group">
+              <span className="editor-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                <EyeOff size={14} /> Ẩn kết quả khi quay
+              </span>
+              <label className="switch">
+                <input 
+                  type="checkbox" 
+                  checked={hideDuringSpin} 
+                  onChange={(e) => setHideDuringSpin(e.target.checked)} 
+                />
+                <span className="slider-switch"></span>
+              </label>
+            </div>
+
+            <div style={{ marginTop: '1rem' }}>
+              <span className="editor-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Palette size={14} /> Chủ đề màu sắc
+              </span>
+              <div className="color-option-group">
+                {THEME_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    className={`color-btn ${wheelTheme === color.value ? 'active' : ''} ${color.value === 'random' ? 'random-gradient' : ''}`}
+                    style={color.value !== 'random' ? { backgroundColor: color.value } : {}}
+                    title={color.name}
+                    onClick={() => setWheelTheme(color.value)}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
 
           <span className="editor-title">Tùy chỉnh nội dung ({DEFAULT_MODES[activeMode].label})</span>
