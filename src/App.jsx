@@ -179,28 +179,32 @@ const App = () => {
                   step="500"
                   value={spinDuration}
                   onChange={(e) => setSpinDuration(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: 'var(--primary)' }}
+                  style={{ width: '100%', accentColor: 'var(--primary)', cursor: 'pointer' }}
                   disabled={isSpinning}
                 />
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <span style={{ fontSize: '0.8rem' }}>Khoảng ngẫu nhiên: {randomRange.min}s - {randomRange.max}s</span>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="number"
-                    placeholder="Min (s)"
-                    style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '8px', textAlign: 'center', padding: '8px' }}
-                    value={randomRange.min}
-                    onChange={(e) => setRandomRange({ ...randomRange, min: Number(e.target.value) })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max (s)"
-                    style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '8px', textAlign: 'center', padding: '8px' }}
-                    value={randomRange.max}
-                    onChange={(e) => setRandomRange({ ...randomRange, max: Number(e.target.value) })}
-                  />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontSize: '0.8rem' }}>Khoảng ngẫu nhiên (giây):</span>
+                <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '8px', padding: '0 8px', minWidth: 0 }}>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Min</span>
+                    <input
+                      type="number"
+                      style={{ background: 'transparent', border: 'none', color: 'white', width: '100%', textAlign: 'center', padding: '8px 2px', outline: 'none', minWidth: 0 }}
+                      value={randomRange.min}
+                      onChange={(e) => setRandomRange({ ...randomRange, min: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '8px', padding: '0 8px', minWidth: 0 }}>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Max</span>
+                    <input
+                      type="number"
+                      style={{ background: 'transparent', border: 'none', color: 'white', width: '100%', textAlign: 'center', padding: '8px 2px', outline: 'none', minWidth: 0 }}
+                      value={randomRange.max}
+                      onChange={(e) => setRandomRange({ ...randomRange, max: Number(e.target.value) })}
+                    />
+                  </div>
                 </div>
               </div>
             )}

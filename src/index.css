@@ -31,12 +31,12 @@ body {
 .app-container {
   width: 100%;
   max-width: 460px;
-  /* Slightly narrower */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2rem;
   padding: 60px 20px 60px;
+  overflow-x: hidden;
 }
 
 .brand {
