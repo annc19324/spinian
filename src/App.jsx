@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SpinnerWheel from './components/SpinnerWheel';
-import { Settings, ChevronDown, ChevronUp, Clock, EyeOff, Palette } from 'lucide-react';
+import { Settings, ChevronDown, ChevronUp, Clock, EyeOff, Palette, RefreshCcw } from 'lucide-react';
 
 const DEFAULT_MODES = {
   NAMES: {
@@ -26,6 +26,8 @@ const THEME_COLORS = [
   { name: 'Orange', value: '#f4a261' }
 ];
 
+const VERSION = "1.2"; // Force update for 3-item default
+
 const App = () => {
   const [activeMode, setActiveMode] = useState('NAMES');
   const [showEditor, setShowEditor] = useState(false);
@@ -34,12 +36,22 @@ const App = () => {
   const [randomRange, setRandomRange] = useState({ min: 5, max: 30 });
   const [effectiveDuration, setEffectiveDuration] = useState(5000);
 
-  // New states for hide content and color theme
   const [hideDuringSpin, setHideDuringSpin] = useState(false);
   const [wheelTheme, setWheelTheme] = useState('random');
 
   const [customItems, setCustomItems] = useState(() => {
     const saved = localStorage.getItem('spinian_custom_items');
+    const savedVersion = localStorage.getItem('spinian_version');
+
+    // Force reset if version mismatch (to apply 3-item default)
+    if (savedVersion !== VERSION) {
+      return {
+        NAMES: DEFAULT_MODES.NAMES.defaultItems.join('\n'),
+        PRIZES: DEFAULT_MODES.PRIZES.defaultItems.join('\n'),
+        LUCKY: DEFAULT_MODES.LUCKY.defaultItems.join('\n')
+      };
+    }
+
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -58,6 +70,7 @@ const App = () => {
 
   useEffect(() => {
     localStorage.setItem('spinian_custom_items', JSON.stringify(customItems));
+    localStorage.setItem('spinian_version', VERSION);
   }, [customItems]);
 
   const getCurrentItems = () => {
@@ -69,6 +82,17 @@ const App = () => {
       ...prev,
       [activeMode]: value
     }));
+  };
+
+  const handleReset = () => {
+    if (window.confirm("Bạn có muốn đặt lại toàn bộ danh sách về mặc định (3 dòng)?")) {
+      const resetData = {
+        NAMES: DEFAULT_MODES.NAMES.defaultItems.join('\n'),
+        PRIZES: DEFAULT_MODES.PRIZES.defaultItems.join('\n'),
+        LUCKY: DEFAULT_MODES.LUCKY.defaultItems.join('\n')
+      };
+      setCustomItems(resetData);
+    }
   };
 
   const handleSpinStart = () => {
@@ -210,7 +234,6 @@ const App = () => {
             )}
           </div>
 
-          {/* New Visibility & Theme Settings Section */}
           <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem' }}>
             <div className="toggle-group">
               <span className="editor-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
@@ -244,7 +267,13 @@ const App = () => {
             </div>
           </div>
 
-          <span className="editor-title">Tùy chỉnh nội dung ({DEFAULT_MODES[activeMode].label})</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <span className="editor-title" style={{ margin: 0 }}>Tùy chỉnh nội dung ({DEFAULT_MODES[activeMode].label})</span>
+            <button onClick={handleReset} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: '600' }}>
+              <RefreshCcw size={12} /> Đặt lại mặc định
+            </button>
+          </div>
+
           <textarea
             className="editor-input"
             value={customItems[activeMode]}
