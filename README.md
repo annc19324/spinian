@@ -1,83 +1,83 @@
 # Spinian 🎡
 
-Spinian is a modern, interactive, and customizable spinner wheel application built with **React** and **Vite**. Whether you need to pick a lucky winner, distribute prizes, or just have fun making random decisions, Spinian provides a polished and engaging experience.
+Spinian là một ứng dụng vòng quay may mắn hiện đại, tương tác và có thể tùy chỉnh, được xây dựng bằng **React** và **Vite**. Cho dù bạn cần chọn một người chiến thắng ngẫu nhiên, phân phát giải thưởng hay chỉ đơn giản là muốn vui vẻ đưa ra quyết định, Spinian cung cấp một trải nghiệm mượt mà và thú vị.
 
-## ✨ Features
+## ✨ Tính Năng
 
-- **Multiple Game Modes**:
-  - **Quay Tên (Names)**: Perfect for picking a random person from a group.
-  - **Quay Thưởng (Prizes)**: Distribute rewards or gifts.
-  - **Quay Lì Xì (Lucky Money)**: Add excitement to holidays or events.
-- **Fully Customizable**:
-  - **Edit Content**: Easily add, remove, or modify items on the wheel.
-  - **Visual Themes**: Choose from multiple color themes (Purple, Red, Blue, Green, Orange) or use the dynamic "Random" outcome.
-  - **Spin Settings**: Control spin duration (fixed time or random range) and toggle content visibility during the spin.
-- **Engaging Effects**:
-  - **Sound Effects**: Realistic ticking sounds during the spin and a victory chord upon completion.
-  - **Visuals**: Smooth animations and a confetti celebration for the winner.
-- **Persistent Data**: Your custom lists and settings are automatically saved to your browser's storage.
+- **Nhiều Chế Độ Chơi**:
+  - **Quay Tên**: Hoàn hảo để chọn ngẫu nhiên một người trong nhóm.
+  - **Quay Thưởng**: Phân phát phần thưởng hoặc quà tặng.
+  - **Quay Lì Xì**: Thêm phần thú vị cho các dịp lễ tết hoặc sự kiện.
+- **Tùy Chỉnh Linh Hoạt**:
+  - **Chỉnh Sửa Nội Dung**: Dễ dàng thêm, xóa hoặc sửa đổi các mục trên vòng quay.
+  - **Chủ Đề Giao Diện**: Chọn từ nhiều chủ đề màu sắc (Tím, Đỏ, Xanh Dương, Xanh Lá, Cam) hoặc sử dụng chế độ "Ngẫu nhiên" năng động.
+  - **Cài Đặt Quay**: Điều chỉnh thời gian quay (cố định hoặc ngẫu nhiên) và ẩn/hiện nội dung trong khi quay.
+- **Hiệu Ứng Hấp Dẫn**:
+  - **Âm Thanh**: Tiếng tích tắc chân thực khi quay và âm thanh chiến thắng khi kết thúc.
+  - **Hình Ảnh**: Hoạt ảnh mượt mà và hiệu ứng pháo giấy (confetti) chúc mừng người chiến thắng.
+- **Lưu Trữ Dữ Liệu**: Các danh sách tùy chỉnh và cài đặt của bạn được tự động lưu vào trình duyệt.
 
-## 🛠️ Tech Stack
+## 🛠️ Công Nghệ Sử Dụng
 
 - **Framework**: [React 19](https://react.dev/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Styling**: CSS Modules / Vanilla CSS with Variables
+- **Công cụ Build**: [Vite](https://vitejs.dev/)
+- **Styling**: CSS Modules / Vanilla CSS với Variables
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **Animations**: [Framer Motion](https://www.framer.com/motion/) & [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti)
+- **Hiệu ứng**: [Framer Motion](https://www.framer.com/motion/) & [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti)
 
-## 🚀 Getting Started
+## 🚀 Hướng Dẫn Cài Đặt
 
-### Prerequisites
+### Yêu Cầu
 
-Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
+Đảm bảo bạn đã cài đặt [Node.js](https://nodejs.org/) trên máy của mình.
 
-### Installation
+### Cài Đặt
 
-1.  **Clone the repository** (if applicable) or download the source code.
-2.  **Install dependencies**:
+1.  **Clone repository** (nếu có) hoặc tải xuống mã nguồn.
+2.  **Cài đặt các gói phụ thuộc**:
 
     ```bash
     npm install
     ```
 
-### Running Locally
+### Chạy Local (Môi trường phát triển)
 
-Start the development server:
+Khởi động server phát triển:
 
 ```bash
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173` (or the port shown in your terminal).
+Ứng dụng sẽ chạy tại địa chỉ `http://localhost:5173` (hoặc cổng hiển thị trong terminal của bạn).
 
-### Building for Production
+### Build cho Production
 
-To create a production-ready build:
+Để tạo bản build tối ưu cho môi trường production:
 
 ```bash
 npm run build
 ```
 
-To preview the production build:
+Để xem trước bản build production:
 
 ```bash
 npm run preview
 ```
 
-## 📖 Usage
+## 📖 Hướng Dẫn Sử Dụng
 
-1.  **Select a Mode**: Choose from the tabs at the top (Names, Prizes, Lucky Money).
-2.  **Spin**: Click the **SPIN** button or the wheel itself to start.
-3.  **Customize**:
-    - Click **"Chỉnh sửa & Cài đặt"** (Edit & Settings) to open the configuration panel.
-    - Adjust spin time, toggle "Hide results during spin", or change the color theme.
-    - Edit the text area to update the items on the wheel (one item per line).
-4.  **Reset**: Use the reset button to restore default items if needed.
+1.  **Chọn Chế Độ**: Chọn từ các tab ở trên cùng (Quay Tên, Quay Thưởng, Quay Lì Xì).
+2.  **Quay**: Nhấn nút **SPIN** hoặc nhấn vào vòng quay để bắt đầu.
+3.  **Tùy Chỉnh**:
+    - Nhấn vào **"Chỉnh sửa & Cài đặt"** để mở bảng cấu hình.
+    - Điều chỉnh thời gian quay, ẩn kết quả khi quay, hoặc thay đổi chủ đề màu sắc.
+    - Chỉnh sửa khung văn bản để cập nhật các mục trên vòng quay (mỗi mục một dòng).
+4.  **Đặt Lại**: Sử dụng nút đặt lại để khôi phục danh sách mặc định nếu cần.
 
-## 🤝 Contributing
+## 🤝 Đóng Góp
 
-Contributions are welcome! Feel free to open issues or submit pull requests to improve the application.
+Mọi đóng góp đều được hoan nghênh! Hãy thoải mái mở issue hoặc gửi pull request để cải thiện ứng dụng.
 
-## 📄 License
+## 📄 Giấy Phép
 
-This project is open-source and available for personal and educational use.
+Dự án này là mã nguồn mở và có thể sử dụng cho mục đích cá nhân và giáo dục.
